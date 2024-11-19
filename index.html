@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link
+            rel="shortcut icon"
+            href="./assets/images/hangman.ico"
+            type="image/x-icon"
+        />
+
+        <style>
+            @font-face {
+                font-family: cheri;
+                src: url(./assets/fonts/cheri.liney.ttf);
+            }
+            @font-face {
+                font-family: roboto;
+                src: url(./assets/fonts/Roboto-Medium.ttf);
+            }
+            @font-face {
+                font-family: segoe;
+                src: url(./assets/fonts/Segoe-UI.ttf);
+            }
+
+            *,
+            *::before,
+            *::after {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                min-height: 100vh;
+                text-rendering: optimizeSpeed;
+                line-height: 1.5;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+            input,
+            button {
+                font: inherit;
+            }
+            body {
+                background-color: #23324b;
+                position: relative;
+            }
+            .caution {
+                color: red;
+                margin: 4px;
+                font-size: 1.3rem;
+                display: none;
+            }
+
+            /* header */
+            .header {
+                max-width: 890px;
+                padding-block: 30px;
+                padding-inline: 20px;
+                margin-inline: auto;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .title-cont {
+                place-self: center;
+            }
+
+            /* titles */
+            .title {
+                font-family: cheri;
+                font-size: 4rem;
+                color: #e5e7eb;
+                letter-spacing: 10px;
+            }
+
+            .sub-title {
+                color: #c2c2c2;
+                font-family: segoe;
+                font-size: 1.2rem;
+                line-height: 1.3;
+                margin-bottom: 1rem;
+            }
+            .title,
+            .sub-title {
+                text-align: center;
+                user-select: none;
+            }
+            /* main */
+            .main {
+                width: 100%;
+                height: 80px;
+                position: relative;
+            }
+
+            .inner-main {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translateY(-50%) translateX(-50%);
+                -webkit-transform: translateY(-50%) translateX(-50%);
+                -moz-transform: translateY(-50%) translateX(-50%);
+                -ms-transform: translateY(-50%) translateX(-50%);
+                -o-transform: translateY(-50%) translateX(-50%);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            .main-block {
+                width: 50px;
+                height: 50px;
+                background-color: transparent;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 2rem;
+                background-color: #333;
+                opacity: 90;
+                color: transparent;
+                border-bottom: 15px solid #202020;
+                border-radius: 5px;
+                -webkit-border-radius: 5px;
+                -moz-border-radius: 5px;
+                -ms-border-radius: 5px;
+                -o-border-radius: 5px;
+                position: relative;
+            }
+            .main-block::after {
+                content: "";
+                position: absolute;
+                height: 7px;
+                bottom: -11px;
+                left: 5px;
+                right: 5px;
+                background: linear-gradient(90deg, #4a4a4a, #3c3c3c 50%, #4a4a4a 100%);
+                box-shadow: inset -8px 0 8px rgba(0, 0, 0, 0.15),
+                    inset -8px 8px rgba(0, 0, 0, 0.25), 10px 20px 25px rgba(0, 0, 0, 0.4);
+                border-radius: 0 0 3px 3px;
+                -webkit-border-radius: 0 0 3px 3px;
+                -moz-border-radius: 0 0 3px 3px;
+                -ms-border-radius: 0 0 3px 3px;
+                -o-border-radius: 0 0 3px 3px;
+            }
+            .main-block.visible {
+                color: #fff;
+            }
+            .tries-cont {
+                height: 50px;
+                position: relative;
+            }
+            .tries {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translateY(-50%) translateX(-50%);
+                -webkit-transform: translateY(-50%) translateX(-50%);
+                -moz-transform: translateY(-50%) translateX(-50%);
+                -ms-transform: translateY(-50%) translateX(-50%);
+                -o-transform: translateY(-50%) translateX(-50%);
+                font-size: 2rem;
+                font-family: segoe;
+                color: #fff;
+                text-align: center;
+                user-select: none;
+            }
+
+            /* keyboard */
+            .keyboard {
+                margin: 1rem auto;
+                max-width: 890px;
+                padding-inline: 20px;
+                min-width: 400px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.9rem;
+                margin-bottom: 2rem;
+            }
+            .keyboard button {
+                font-family: roboto;
+                display: inline-block;
+                position: relative;
+                height: 60px;
+                width: 60px;
+                padding: 8px 10px;
+                background: linear-gradient(180deg, #282828, #202020);
+                border: none;
+                border-radius: 10px;
+                -webkit-border-radius: 10px;
+                -moz-border-radius: 10px;
+                -ms-border-radius: 10px;
+                -o-border-radius: 10px;
+                box-shadow: inset -8px 0 8px rgba(0, 0, 0, 0.15),
+                    inset -8px 8px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(0, 0, 0, 0.75),
+                    10px 20px 25px rgba(0, 0, 0, 0.4);
+                overflow: hidden;
+                cursor: pointer;
+            }
+            .keyboard button::before {
+                content: "";
+                position: absolute;
+                top: 3px;
+                left: 4px;
+                bottom: 14px;
+                right: 12px;
+                background: linear-gradient(90deg, #232323, #4a4a4a);
+                border-radius: 10px;
+                -webkit-border-radius: 10px;
+                -moz-border-radius: 10px;
+                -ms-border-radius: 10px;
+                -o-border-radius: 10px;
+                box-shadow: -10px -10px 10px rgba(255, 255, 255, 0.25),
+                    10px 5px 10px rgba(0, 0, 0, 0.15);
+                border-left: 1px solid #0004;
+                border-bottom: 1px solid #0004;
+                border-top: 1px solid #0009;
+            }
+            .start-button:active,
+            .keyboard button:active {
+                transform: scale(0.94);
+                -webkit-transform: scale(0.94);
+                -moz-transform: scale(0.94);
+                -ms-transform: scale(0.94);
+                -o-transform: scale(0.94);
+            }
+            button.fail {
+                background: linear-gradient(180deg, #d25e5e, #b12222);
+                box-shadow: 10px 5px 10px rgba(0, 0, 0, 0.5);
+                opacity: 0.4;
+                transform: scale(0.94);
+                -webkit-transform: scale(0.94);
+                -moz-transform: scale(0.94);
+                -ms-transform: scale(0.94);
+                -o-transform: scale(0.94);
+                cursor: not-allowed;
+            }
+            button.fail::before {
+                background: linear-gradient(90deg, #ff3434, #ff4545);
+            }
+
+            .keyboard button.success {
+                background: linear-gradient(180deg, #10b981, #065f46);
+                box-shadow: 5px 3px 10px rgba(0, 0, 0, 0.3);
+            }
+            .keyboard button.success::before {
+                background: linear-gradient(90deg, #15803d, #20aa52);
+            }
+
+            .keyboard button i,
+            .start-button i {
+                position: relative;
+                color: #fff;
+                font-style: normal;
+                font-size: 1.25rem;
+                text-transform: uppercase;
+                -webkit-user-select: none;
+                -webkit-touch-callout: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+
+            .start {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 5rem;
+            }
+            .start-button,
+            .hint {
+                display: inline-block;
+                position: relative;
+                min-height: 70px;
+                padding: 8px 15px;
+                background: linear-gradient(180deg, #fb923c, #c2410c);
+                border: none;
+                border-radius: 10px;
+                -webkit-border-radius: 10px;
+                -moz-border-radius: 10px;
+                -ms-border-radius: 10px;
+                -o-border-radius: 10px;
+                box-shadow: inset -8px 0 8px rgba(234, 88, 12, 0.15),
+                    inset -8px 8px rgba(234, 88, 12, 0.25),
+                    0 0 0 2px rgba(234, 88, 12, 0.75), 10px 20px 25px rgba(0, 0, 0, 0.4);
+                overflow: hidden;
+                cursor: pointer;
+            }
+            .start-button::before,
+            .hint::before {
+                content: "";
+                position: absolute;
+                top: 3px;
+                left: 4px;
+                bottom: 14px;
+                right: 12px;
+                background: linear-gradient(90deg, #f97316, #fb923c);
+                border-radius: 10px;
+                -webkit-border-radius: 10px;
+                -moz-border-radius: 10px;
+                -ms-border-radius: 10px;
+                -o-border-radius: 10px;
+                box-shadow: -10px -10px 10px rgba(255, 255, 255, 0.25),
+                    10px 5px 10px rgba(0, 0, 0, 0.15);
+                border-left: 1px solid #0004;
+                border-bottom: 1px solid #0004;
+                border-top: 1px solid #0009;
+            }
+            .start-button i,
+            .hint i {
+                position: relative;
+                color: #333;
+                font-weight: 600;
+                font-family: sans-serif;
+            }
+
+            .hint {
+                min-height: 60px;
+                padding: 8px 20px 15px 13px;
+                background: linear-gradient(180deg, #cfcfcf, #777777);
+                box-shadow: inset -8px 0 8px rgba(234, 255, 255, 0.15),
+                    inset -8px 8px rgba(234, 255, 255, 0.25),
+                    0 0 0 2px rgba(234, 255, 255, 0.75), 10px 20px 25px rgba(0, 0, 0, 0.4);
+            }
+            .hint::before {
+                background: linear-gradient(90deg, #a3a3a3, #eeeeee);
+            }
+            #start.start-fail {
+                opacity: 0.6;
+                transform: scale(0.94);
+                -webkit-transform: scale(0.94);
+                -moz-transform: scale(0.94);
+                -ms-transform: scale(0.94);
+                -o-transform: scale(0.94);
+                cursor: not-allowed;
+            }
+
+            /* Modals */
+            .modal {
+                position: absolute;
+                background-color: #9199a5;
+                color: #0e141e;
+                font-family: sans-serif;
+                width: 400px;
+                padding: 1rem;
+                border: 3px solid #39475d;
+                border-radius: 4px;
+                -webkit-border-radius: 4px;
+                -moz-border-radius: 4px;
+                -ms-border-radius: 4px;
+                -o-border-radius: 4px;
+                top: 50%;
+                left: 50%;
+                transform: translateX(-50%) translateY(-50%);
+                -webkit-transform: translateX(-50%) translateY(-50%);
+                -moz-transform: translateX(-50%) translateY(-50%);
+                -ms-transform: translateX(-50%) translateY(-50%);
+                -o-transform: translateX(-50%) translateY(-50%);
+            }
+            .modal > * + * {
+                margin-top: 0.75em;
+            }
+            .modal > * {
+                user-select: none;
+            }
+            .modal::backdrop {
+                background-color: rgba(0, 0, 0, 0.4);
+            }
+
+            /* Hint Modal */
+            .modal-hint p {
+                color: #4f5b6f;
+            }
+            .hint-btn {
+                display: flex;
+                gap: 0.25rem;
+                font-size: 15px;
+            }
+            .hint-btn > * {
+                cursor: pointer;
+                border: 2px solid #7b8493;
+                padding: 0.25rem 0.5rem;
+                flex: 1;
+            }
+            /* Win Modal */
+            .modal-win::backdrop {
+                background-color: transparent;
+            }
+
+            /* About button and modal */
+            .open-about {
+                background-color: transparent;
+                border: none;
+                cursor: pointer;
+                /* position */
+                position: fixed;
+                top: 15px;
+                right: 25px;
+            }
+            .close-about {
+                cursor: pointer;
+                border: none;
+                background-color: transparent;
+                margin: 0;
+                padding: 0;
+                /* position */
+                position: absolute;
+                top: 10px;
+                right: 10px;
+            }
+            .close-about svg {
+                width: 20px;
+                fill: hsl(217, 24%, 20%);
+            }
+            .modal-about {
+                text-align: center;
+                position: relative;
+            }
+            .modal-about h4 {
+                /* Modal Title */
+                font-family: cheri;
+                font-size: 2rem;
+                color: hsl(217, 24%, 25%);
+                letter-spacing: 4px;
+            }
+            .modal-about .lead {
+                /* Modal Para */
+                font-size: 0.8rem;
+                color: hsl(217, 24%, 35%);
+                text-align: left;
+                margin-left: 4px;
+                line-height: 1.5;
+            }
+            .about-icon-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 4px;
+                color: hsl(217, 24%, 30%);
+            }
+            .about-icon-container img {
+                width: 34px;
+            }
+            .about-links {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+            .about-links a {
+                text-decoration: none;
+            }
+            @media screen and (max-width: 1440px) {
+                .header {
+                    max-width: 790px;
+                    margin-block: 25px;
+                }
+                #hangman {
+                    width: 10rem;
+                }
+            }
+            @media screen and (max-width: 768px) {
+                .title {
+                    font-size: 3.5rem;
+                }
+                .sub-title {
+                    font-size: 1rem;
+                }
+                .keyboard button {
+                    width: 55px;
+                    height: 55px;
+                }
+            }
+            @media screen and (max-width: 500px) {
+                .caution {
+                    display: block;
+                }
+                .header {
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                }
+                .title-cont {
+                    grid-row: 1 /2;
+                }
+                .title {
+                    font-size: 3rem;
+                }
+                .sub-title {
+                    font-size: 1rem;
+                }
+                #hangman {
+                    place-self: center;
+                }
+            }
+        </style>
+
+        <script type="module">
+            import confetti from "https://cdn.skypack.dev/canvas-confetti";
+
+            let words = [
+                "Argentina", "Australia", "Brazil", "Canada", "China", "Colombia", "Denmark", "Egypt", "Finland", 
+                "France", "Germany", "Greece", "India", "Indonesia", "Italy", "Japan", "Mexico", "Netherlands", 
+                "NewZealand", "Norway", "Pakistan", "Peru", "Poland", "Portugal", "Russia", "SouthAfrica", 
+                "SouthKorea", "Spain", "Sweden", "Switzerland", "Thailand", "Turkey", "UnitedKingdom", 
+                "UnitedStates", "Uruguay", "Venezuela", "Vietnam", "Zimbabwe"
+            ];
+
+            // ============================================================
+            // Changing height of main div in getRndWord on w=768px if letters exceeds 7
+            const winWidth = window.innerWidth;
+
+            // adding listener to each key
+            let keyboardBtns = document.querySelectorAll(".keyboard-btn");
+            keyboardBtns.forEach((key) => {
+                key.addEventListener("click", () => play(key.getAttribute("id")));
+            });
+
+            const tries_div = document.querySelector(".tries");
+            const start_button = document.querySelector("#start");
+            const main = document.querySelector(".main");
+            const main_div = document.querySelector(".inner-main");
+            const img = document.querySelector("#hangman");
+            const startGame = document.querySelector("#start-game");
+            let blocks = null;
+            let dupWord = [];
+            let word = [];
+            let tries = 0;
+            let totalTries = null;
+            let firstTime = true;
+
+            // Modals
+            const hintModal = document.querySelector("#modal-hint");
+            const tries0Modal = document.querySelector("#modal-tries0");
+            const winModal = document.querySelector("#modal-win");
+            const loseModal = document.querySelector("#modal-lose");
+            const secretWord = document.querySelector("#secret-word");
+            const aboutModal = document.querySelector("#modal-about");
+
+            // starting script
+            disableBtns();
+
+            start_button.addEventListener("click", () => {
+                disableStart();
+                enableBtns();
+                clearFails();
+                clearMainDiv();
+                genWrdBlocks();
+                setTries();
+            });
+
+            function play(id) {
+                if (tries > 0) {
+                    let match = word.includes(id);
+                    let res = 1;
+                    if (match) {
+                        blocks.forEach((block) => {
+                            if (
+                                !block.classList.contains("visible") &&
+                                block.textContent === id &&
+                                res >= 1
+                            ) {
+                                block.classList.add("visible");
+                                res -= 1;
+                            }
+                        });
+                        word.splice(word.indexOf(id), 1);
+                    } else if (!match) {
+                        document.querySelector(`#${id}`).classList.add("fail");
+                        document.querySelector(`#${id}`).disabled = true;
+                        decTries();
+                        document.querySelector(
+                            ".tries"
+                        ).innerHTML = `${tries} out of ${totalTries} tries left`;
+                        setImg();
+                    }
+                }
+                winLose();
+            }
+
+            // utility functions
+
+            // =========================================
+
+            function getRnd(min, max) {
+                let step1 = max - min + 1;
+                let step2 = Math.random() * step1;
+                let result = Math.floor(step2) + min;
+                return result;
+            }
+
+            function getRndWord() {
+                let word = words[getRnd(0, words.length - 1)].split("");
+                if (word.length >= 7 && winWidth <= 768) {
+                    main.style.height = "140px";
+                }
+                return word;
+            }
+
+            function genWrdBlocks() {
+                word = getRndWord();
+                console.log(word);
+                dupWord = [...dupWord, ...word];
+
+                // create divs in dom
+                word.forEach((letter) => {
+                    let div = document.createElement("div");
+                    div.classList.add(`main-block`);
+                    div.classList.add(`val-${letter}`);
+                    div.innerHTML = letter;
+                    main_div.appendChild(div);
+                });
+                blocks = document.querySelectorAll(".main-block");
+            }
+
+            // =========================================
+
+            document.querySelector("#hint").addEventListener("click", hint);
+            function hint() {
+                if (firstTime && tries > 2) {
+                    openHint();
+                } else if (tries > 2 && !firstTime) {
+                    let arr = [];
+                    blocks.forEach((block) => {
+                        if (!block.classList.contains("visible")) {
+                            arr.push(block);
+                        }
+                    });
+                    arr[getRnd(0, arr.length - 1)].classList.add("visible");
+                    tries = tries - 2;
+                    document.querySelector(".tries").innerHTML = `tries: ${tries}`;
+                    setImg();
+                    winLose();
+                } else if (tries <= 2) {
+                    tries0();
+                }
+            }
+
+            function resetAll() {
+                tries = 0;
+                document.querySelector(".tries").innerHTML = "tries";
+                startGame.innerHTML = "Play Again";
+                img.src = "./assets/images/0.png";
+                word = [];
+                dupWord = [];
+                clearFails();
+                clearMainDiv();
+                enableStart();
+            }
+
+            function clearFails() {
+                for (let i = 97; i < 123; i++) {
+                    document
+                        .querySelector(`#${String.fromCharCode(i)}`)
+                        .classList.remove("fail");
+                }
+            }
+
+            function clearMainDiv() {
+                main_div.innerHTML = "";
+            }
+
+            function setImg() {
+                let percent = (tries / totalTries) * 100;
+                if (percent > 71.5 && percent <= 87.75) {
+                    img.src = "./assets/images/1.png";
+                } else if (percent > 57.25 && percent <= 71.5) {
+                    img.src = "./assets/images/2.png";
+                } else if (percent > 43 && percent <= 57.25) {
+                    img.src = "./assets/images/3.png";
+                } else if (percent > 28.75 && percent <= 43) {
+                    img.src = "./assets/images/4.png";
+                } else if (percent > 14.5 && percent <= 28.75) {
+                    img.src = "./assets/images/5.png";
+                } else if (percent <= 14.5) {
+                    img.src = "./assets/images/6.png";
+                }
+            }
+
+            function setTries() {
+                tries = word.length;
+                totalTries = word.length;
+                tries_div.innerHTML = `${tries} out of ${totalTries} tries left`;
+            }
+
+            function decTries() {
+                tries -= 1;
+            }
+
+            function disableStart() {
+                start_button.disabled = true;
+                start_button.classList.add("start-fail");
+            }
+
+            function enableStart() {
+                start_button.disabled = false;
+                start_button.classList.remove("start-fail");
+            }
+
+            function disableBtns() {
+                for (let i = 97; i < 123; i++) {
+                    document.querySelector(`#${String.fromCharCode(i)}`).disabled = true;
+                }
+                document.querySelector(".hint").disabled = true;
+            }
+
+            function enableBtns() {
+                for (let i = 97; i < 123; i++) {
+                    document.querySelector(`#${String.fromCharCode(i)}`).disabled = false;
+                }
+                document.querySelector(".hint").disabled = false;
+            }
+
+            function winLose() {
+                if (tries === 0) {
+                    secretWord.innerHTML = `secret word was "${dupWord.join("")}"`;
+                    openLose();
+                    setTimeout(() => {
+                        closeLose();
+                        resetAll();
+                        disableBtns();
+                    }, 2500);
+                } else if (
+                    document.querySelectorAll(".visible").length === dupWord.length
+                ) {
+                    confetti({
+                        particleCount: 200,
+                        scalar: 1.175,
+                        angle: 60,
+                        gravity: 0.75,
+                        spread: 70,
+                        origin: { x: 0 },
+                    });
+                    confetti({
+                        particleCount: 200,
+                        scalar: 1.175,
+                        angle: 120,
+                        gravity: 0.75,
+                        spread: 70,
+                        origin: { x: 1 },
+                    });
+                    openWin();
+                    resetAll();
+                    disableBtns();
+                    setTimeout(() => {
+                        closeWin();
+                    }, 3000);
+                }
+            }
+
+            // ================== Modal Functions =====================
+            // Modal Toggle
+            function openHint() {
+                hintModal.showModal();
+            }
+            document.querySelector("#close-hint").addEventListener("click", closeHint);
+            function closeHint() {
+                hintModal.close();
+            }
+            function openTries0() {
+                tries0Modal.showModal();
+            }
+            function closeTries0() {
+                tries0Modal.close();
+            }
+            function openWin() {
+                winModal.showModal();
+            }
+            function closeWin() {
+                winModal.close();
+            }
+            function openLose() {
+                loseModal.showModal();
+            }
+            function closeLose() {
+                loseModal.close();
+            }
+            document.querySelector("#open-about").addEventListener("click", () => {
+                aboutModal.showModal();
+            });
+            document.querySelector("#close-about").addEventListener("click", () => {
+                aboutModal.close();
+            });
+            // Modal Actions
+
+            document
+                .querySelector("#take-hint")
+                .addEventListener("click", setFirtTimeFalse);
+            function setFirtTimeFalse() {
+                /** on taking hint */
+                firstTime = false;
+                closeHint();
+                hint();
+            }
+
+            function tries0() {
+                // when player has not enough tries
+                openTries0();
+                setTimeout(() => {
+                    closeTries0();
+                }, 1000);
+            }
+        </script>
+        <title>Countryman</title>
+    </head>
+    <body>
+        <div class="caution">
+            *Playing on mobile won't be a better experience
+        </div>
+        <div class="header">
+            <img id="hangman" src="./assets/images/0.png" alt="" />
+            <div class="title-cont">
+                <h1 class="title">Countryman</h1>
+                <h3 class="sub-title">
+                    Guess the country
+                </h3>
+            </div>
+        </div>
+        <div class="main">
+            <div class="inner-main"></div>
+        </div>
+
+        <div class="tries-cont">
+            <p class="tries"></p>
+        </div>
+
+        <div class="keyboard">
+            <button id="a" class="keyboard-btn">
+                <i>a</i>
+            </button>
+            <button id="b" class="keyboard-btn">
+                <i>b</i>
+            </button>
+            <button id="c" class="keyboard-btn">
+                <i>c</i>
+            </button>
+            <button id="d" class="keyboard-btn">
+                <i>d</i>
+            </button>
+            <button id="e" class="keyboard-btn">
+                <i>e</i>
+            </button>
+            <button id="f" class="keyboard-btn">
+                <i>f</i>
+            </button>
+            <button id="g" class="keyboard-btn">
+                <i>g</i>
+            </button>
+            <button id="h" class="keyboard-btn">
+                <i>h</i>
+            </button>
+            <button id="i" class="keyboard-btn">
+                <i>i</i>
+            </button>
+            <button id="j" class="keyboard-btn">
+                <i>j</i>
+            </button>
+            <button id="k" class="keyboard-btn">
+                <i>k</i>
+            </button>
+            <button id="l" class="keyboard-btn">
+                <i>l</i>
+            </button>
+            <button id="m" class="keyboard-btn">
+                <i>m</i>
+            </button>
+            <button id="n" class="keyboard-btn">
+                <i>n</i>
+            </button>
+            <button id="o" class="keyboard-btn">
+                <i>o</i>
+            </button>
+            <button id="p" class="keyboard-btn">
+                <i>p</i>
+            </button>
+            <button id="q" class="keyboard-btn">
+                <i>q</i>
+            </button>
+            <button id="r" class="keyboard-btn">
+                <i>r</i>
+            </button>
+            <button id="s" class="keyboard-btn">
+                <i>s</i>
+            </button>
+            <button id="t" class="keyboard-btn">
+                <i>t</i>
+            </button>
+            <button id="u" class="keyboard-btn">
+                <i>u</i>
+            </button>
+            <button id="v" class="keyboard-btn">
+                <i>v</i>
+            </button>
+            <button id="w" class="keyboard-btn">
+                <i>w</i>
+            </button>
+            <button id="x" class="keyboard-btn">
+                <i>x</i>
+            </button>
+            <button id="y" class="keyboard-btn">
+                <i>y</i>
+            </button>
+            <button id="z" class="keyboard-btn">
+                <i>z</i>
+            </button>
+        </div>
+
+        <div class="start">
+            <button type="button" id="start" class="start-button">
+                <i id="start-game">start Game</i>
+            </button>
+            <button class="hint" id="hint">
+                <i>Hint</i>
+            </button>
+        </div>
+
+        <!-- Modals -->
+        <!-- Hint Modal -->
+        <dialog class="modal modal-hint" id="modal-hint">
+            <h3>Taking a hint costs 2 tries</h3>
+            <p>Are you sure to make the trade?🤔</p>
+            <div class="hint-btn">
+                <button id="close-hint">
+                    Nah🙄, I'll figure it out myself
+                </button>
+                <button class="close-button" id="take-hint">Yeah sure😇</button>
+            </div>
+        </dialog>
+        <!-- Not enough tries modal -->
+        <dialog class="modal" id="modal-tries0">
+            <h3>You don't have enough tries left😞</h3>
+        </dialog>
+
+        <!-- Win Modal -->
+        <dialog class="modal modal-win" id="modal-win">
+            <h3>Congratulations, You won the game🤩</h3>
+        </dialog>
+
+        <!-- Lose Modal -->
+        <dialog class="modal" id="modal-lose">
+            <h3>Unfortunately, You lost the game 🤕</h3>
+            <p id="secret-word">Secret word was</p>
+        </dialog>
+
+        <!-- About Modal -->
+
+        <button class="open-about" id="open-about">
+            <img src="./assets/images/about.png" alt="about-icon-icons8" />
+        </button>
+        <dialog class="modal modal-about" id="modal-about">
+            <h4>Countryman</h4>
+            <p class="lead">
+                A popular word guessing game with a twist.
+            </p>
+            <div class="about-icon-container">
+                <span>TechStack:</span>
+                <img
+                    src="./assets/images/icons8-html-5-48.png"
+                    alt="html-icon-icon8"
+                /><img
+                    src="./assets/images/icons8-css3-48.png"
+                    alt="css-icon-icon8"
+                /><img
+                    src="./assets/images/icons8-javascript-48.png"
+                    alt="js-icon-icon8"
+                />
+            </div>
+            <div class="about-links">
+                <p>
+                    Code on
+                    <a
+                        href="https://github.com/yousafsabir/hangman"
+                        target="_blank"
+                        >Github</a
+                    >
+                </p>
+                <p>
+                    Confetti by
+                    <a
+                        href="https://github.com/catdad/canvas-confetti"
+                        target="_blank"
+                        >catdad</a
+                    >
+                </p>
+            </div>
+            <button class="close-about" id="close-about">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                >
+                    <path
+                        fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd"
+                    />
+                </svg>
+            </button>
+        </dialog>
+    </body>
+</html>
